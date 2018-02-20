@@ -32,6 +32,7 @@ SerialCraft sc;
 
 // distance from creeper
 uint8_t dist = 100;
+uint8_t item = 1;
 
 // Initialize a strip of LEDs, you may need to change the 3rd
 //Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMLEDS, PIN, LED_TYPE);
@@ -41,6 +42,11 @@ void setup() {
   sc.setup();
   // register a creeper distance callback to receive the distance to the nearest creeper
   sc.registerCreeperDistanceCallback(creeper);
+  sc.registerDigitalInputCallback(leftButton, CPLAY_LEFTBUTTON);
+  sc.registerDigitalInputCallback(rightButton, CPLAY_RIGHTBUTTON);
+  sc.registerDigitalInputCallback(slideSwitch, CPLAY_SLIDESWITCHPIN);
+
+
 
   // initialize the LED strip
   //strip.begin();
@@ -80,8 +86,39 @@ void loop() {
       CircuitPlayground.setPixelColor(i, 0, 0, 0);
     }
   }
+
+
   //strip.show();
   sc.loop();
+}
+
+void leftButton(bool b) {
+  if(b) {
+    sc.sendChatMessage("jumping!");
+    sc.startJumping();
+  } else {
+    sc.sendChatMessage("done jumping.");
+    sc.stopJumping();
+  }
+}
+
+void rightButton(bool b) {
+  if(b) {
+    item = item%9+1;
+    sc.sendChatMessage("setting hot bar item to " + String(item));
+    sc.setHotbarItem(item);
+  }
+}
+
+
+void slideSwitch(bool b) {
+  if(b) {
+    sc.sendChatMessage("slide Serial Redstone signal on");
+    sc.sendRedstoneSignal("slide", 15);
+  } else {
+    sc.sendChatMessage("slide Serial Redstone signal off");
+    sc.sendRedstoneSignal("slide", 0);
+  }
 }
 
 void creeper(int d) {
